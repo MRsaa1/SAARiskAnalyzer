@@ -1,0 +1,86 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: saa-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: risk_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - saa-network
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: saa-api
+    environment:
+      - APP_ENV=production
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=risk_db
+      - PORT=8084
+      - JWT_SECRET=change_me_in_production_use_long_random_string
+      - CORS_ALLOW_ORIGINS=*
+    ports:
+      - "8084:8084"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+    networks:
+      - saa-network
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: saa-web
+    ports:
+      - "3001:80"
+    depends_on:
+      - api
+    networks:
+      - saa-network
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: saa-caddy
+    ports:
+      - "8088:80"
+      - "8443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - api
+      - web
+    networks:
+      - saa-network
+    restart: unless-stopped
+
+networks:
+  saa-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  caddy-data:
+  caddy-config:

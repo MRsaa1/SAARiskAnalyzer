@@ -1,0 +1,8 @@
+	// ВРЕМЕННЫЙ FIX для конфига БД
+	if cfg.DB.Name == "" {
+		cfg.DB.Name = "risk_db"
+	}
+	if cfg.DB.User == "" {
+		import "os"
+		cfg.DB.User = os.Getenv("USER")
+	}
