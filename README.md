@@ -2,7 +2,7 @@
 
 **Institutional-Grade Portfolio Risk Management Platform**
 
-[![Live Demo](https://img.shields.io/badge/Demo-Live-brightgreen)](http://104.248.70.69/risk-analyzer)
+[![Live Demo](https://img.shields.io/badge/Demo-Live-brightgreen)](https://risk.saa-alliance.com)
 [![Tech Stack](https://img.shields.io/badge/Stack-Go%20%2B%20React-blue)](./backend/go.mod)
 [![License](https://img.shields.io/badge/License-Proprietary-red)](LICENSE)
 
@@ -83,7 +83,7 @@ frontend/
 
 ## 🚀 Live Demo
 
-**Production URL:** [http://104.248.70.69/risk-analyzer](http://104.248.70.69/risk-analyzer)
+**Production URL:** [https://risk.saa-alliance.com](https://risk.saa-alliance.com)
 
 ### Features Demonstrated
 
@@ -98,26 +98,14 @@ frontend/
    - Portfolio composition
 
 3. **Risk Lab**
-   - VaR/CVaR calculations with different methods
-   - Monte Carlo simulations
-   - Historical analysis
+   - VaR/CVaR calculation with multiple methods
+   - Stress testing with historical scenarios
+   - Backtesting and validation
 
-4. **Stress Testing**
-   - Scenario constructor
-   - Impact analysis
-   - Custom scenarios
-
-5. **Factor Analysis (PCA)**
-   - Factor decomposition of risks
-   - Principal component visualization
-
----
-
-## 📸 Screenshots
-
-![Dashboard](./screenshots/dashboard.png)
-![Risk Lab](./screenshots/risk-lab.png)
-![Stress Testing](./screenshots/stress-test.png)
+4. **Analytics**
+   - Risk contribution analysis
+   - Correlation heatmaps
+   - PCA factor decomposition
 
 ---
 
@@ -125,199 +113,128 @@ frontend/
 
 ### Prerequisites
 
-- Docker 24+ and Docker Compose
-- Make (optional, for convenience)
-- 4GB+ RAM
+- Go 1.22+
+- Node.js 18+ and npm
+- PostgreSQL 15+
+- Docker & Docker Compose (optional)
 
-### Quick Start
+### Backend Setup
 
-```bash
-# Clone repository
-git clone <repository-url>
-cd saa-risk-analyzer
-
-# Copy and configure environment variables
-cp .env.example .env
-# Edit .env, at minimum change JWT_SECRET!
-
-# Build and start all services
-make build
-make up
-
-# Or one command
-docker-compose up -d --build
-
-# Load demo data (wait ~30 sec for DB and API to start)
-make seed
-```
-
-### Access
-
-- **Frontend:** http://localhost
-- **API Health:** http://localhost/health
-- **Swagger UI:** http://localhost/swagger/index.html
-- **API Direct:** http://localhost:8083
-
-**Default Login:**
-- Email: `admin@example.com`
-- Password: `Admin123456!`
-
----
-
-## 📊 Demo Data
-
-In `data/` directory:
-- **prices.csv**: 5 assets (SPY, TLT, GLD, BTC, EUR), 3 years of history
-- **positions.csv**: Demo portfolio ($1M)
-
----
-
-## 🧪 Testing
-
-```bash
-# All tests
-make test
-
-# Backend only
-make test-backend
-
-# Frontend only
-make test-frontend
-
-# Linters
-make lint
-```
-
----
-
-## 📖 API Documentation
-
-After startup, interactive Swagger UI documentation is available: http://localhost/swagger/index.html
-
-### Example Requests
-
-#### Authentication
-```bash
-curl -X POST http://localhost/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@example.com","password":"Admin123456!"}'
-```
-
-#### Calculate VaR (Historical)
-```bash
-curl -X POST http://localhost/api/risk/var \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "portfolio_id": "uuid-here",
-    "horizon_days": 1,
-    "confidence": 0.99,
-    "method": "historical",
-    "window_days": 250
-  }'
-```
-
----
-
-## 🎨 UI/UX
-
-The platform uses a dark theme matching your website (ReserveOne):
-- Color palette: black background, gold accent (#caa76a)
-- Font: Inter
-- Animations: Framer Motion
-
-### Main Pages
-
-1. **Dashboard**: Overview of VaR, CVaR, correlations, top risk contributors
-2. **Portfolio**: Position management, CSV import
-3. **Risk Lab**: Run VaR/CVaR calculations with different methods
-4. **Stress Testing**: Scenario constructor, impact analysis
-5. **Factors (PCA)**: Factor decomposition of risks
-6. **Reports**: Generate PDF/CSV reports
-7. **Admin**: User and role management
-
----
-
-## 🔒 Security
-
-- **Passwords**: Argon2id (OWASP standard)
-- **JWT**: HMAC-SHA256, short TTL (15 min) + refresh
-- **RBAC**: Three roles (viewer, analyst, admin)
-- **Rate Limiting**: Protection for /auth/* endpoints
-- **CORS**: Configurable origins
-
----
-
-## 🛠️ Development
-
-### Project Structure
-
-```
-saa-risk-analyzer/
-├── backend/          # Go API
-│   ├── cmd/api/      # Entry point
-│   ├── internal/     # Business logic
-│   │   ├── math/     # Risk engine
-│   │   ├── handlers/ # HTTP handlers
-│   │   ├── service/  # Business services
-│   │   ├── repo/     # Data access
-│   │   └── auth/     # JWT, RBAC
-│   └── api/          # OpenAPI spec
-├── frontend/         # React SPA
-│   └── src/
-│       ├── pages/    # Pages
-│       ├── components/ # UI components
-│       └── store/    # Zustand stores
-├── data/             # Demo CSV
-└── scripts/          # Utilities
-```
-
-### Local Development (without Docker)
-
-**Backend:**
 ```bash
 cd backend
-cp ../.env.example .env
-# Configure DB_HOST=localhost in .env
-go run cmd/api/main.go
+go mod download
+go build -o saa-risk-analyzer cmd/api/main.go
+./saa-risk-analyzer
 ```
 
-**Frontend:**
+### Frontend Setup
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
+### Environment Variables
+
+Create `.env` file:
+
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/risk_analyzer
+
+# JWT
+JWT_SECRET=your-secret-key
+JWT_EXPIRY=24h
+
+# Server
+PORT=8080
+GIN_MODE=release
+```
+
 ---
 
-## 🚢 Production Deployment
+## 📊 API Endpoints
 
-### With Domain (Let's Encrypt auto-certificate)
+### Risk Calculation
 
-1. Edit `Caddyfile` - uncomment section with domain
-2. Set correct DNS A records pointing to your server
-3. Run: `docker-compose up -d`
+```
+POST /api/v1/risk/var
+POST /api/v1/risk/cvar
+POST /api/v1/risk/contribution
+GET /api/v1/risk/correlation
+POST /api/v1/risk/pca
+```
 
-Caddy will automatically obtain SSL certificate!
+### Stress Testing
 
-### Digital Ocean Deployment
+```
+POST /api/v1/stress/historical
+POST /api/v1/stress/custom
+GET /api/v1/stress/scenarios
+```
+
+### Backtesting
+
+```
+POST /api/v1/backtest/kupiec
+POST /api/v1/backtest/christoffersen
+```
+
+**Full API Documentation**: Available via Swagger UI at `/swagger/index.html`
+
+---
+
+## 🔧 Configuration
+
+### VaR Parameters
+
+- **Confidence Level**: 95%, 99%, 99.9%
+- **Time Horizon**: 1 day, 1 week, 1 month
+- **Methods**: Historical, Parametric, Monte Carlo
+- **Monte Carlo Paths**: 10,000 - 100,000
+
+### Stress Test Scenarios
+
+Pre-configured historical scenarios:
+- COVID-2020: Market crash March 2020
+- Lehman 2008: Financial crisis September 2008
+- Tech Bubble 2000: Dot-com crash
+
+---
+
+## 🧪 Testing
 
 ```bash
-# Build frontend
-cd frontend
-npm run build
-
-# Build backend
+# Backend tests
 cd backend
-go build -o saa-risk-analyzer cmd/api/main.go
+go test ./...
 
-# Deploy with PM2
-pm2 start saa-risk-analyzer --name saa-risk-analyzer
-
-# Configure Nginx
-# Location: /etc/nginx/sites-enabled/risk-analyzer
+# Frontend tests
+cd frontend
+npm test
 ```
+
+---
+
+## 📈 Performance
+
+- **VaR Calculation**: < 100ms for standard portfolios
+- **Monte Carlo (10k paths)**: 2-5 seconds
+- **Monte Carlo (100k paths)**: 15-30 seconds
+- **Stress Testing**: 1-3 seconds per scenario
+- **Database Queries**: Optimized with indexes and connection pooling
+
+---
+
+## 🔒 Security
+
+- JWT-based authentication
+- RBAC (Role-Based Access Control)
+- Argon2id password hashing
+- Input validation and sanitization
+- CORS configuration
+- Rate limiting
 
 ---
 
@@ -337,11 +254,20 @@ Premium Research & Wealth Intelligence Platform
 
 ## 🔗 Related Projects
 
-- [Crypto Analytics Portal](../crypto_reports)
-- [SAA Learn Your Way](../saa-learn-your-way)
-- [Liquidity Positioner](../liquidity-positioner)
-- [News Analytics AI](../signal-analysis)
+- [Global Risk Intelligence Platform](../Global-Risk-Intelligence-Platform)
+- [Investment Dashboard](../investment-bot)
+- [Crypto Analytics Portal](../CryptoAnalyticsPortal)
+- [ARIN Platform](../arin-platform)
 
 ---
 
-**Last Updated:** November 2025
+## 📞 Support
+
+For questions or support, please contact: [support@saa-alliance.com](mailto:support@saa-alliance.com)
+
+---
+
+**Last Updated:** December 2025
+
+**Production Domain:** https://risk.saa-alliance.com
+
