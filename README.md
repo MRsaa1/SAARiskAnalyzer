@@ -10,7 +10,7 @@
 
 ## 📋 Overview
 
-**SAA Risk Analyzer** is a production-ready portfolio risk analysis platform at the level of Bloomberg Terminal / BlackRock Aladdin. The system provides comprehensive risk metrics, stress testing, and backtesting capabilities for institutional investors.
+**SAA Risk Analyzer** is a production-ready portfolio risk analysis platform. The system provides comprehensive risk metrics, stress testing, and backtesting capabilities for institutional investors.
 
 ### Key Features
 
