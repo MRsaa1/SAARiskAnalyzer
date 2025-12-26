@@ -63,7 +63,7 @@ Research-oriented UX
 
 🌐 Analytical Preview Access
 Preview URL:
-https://risk.saa-alliance.com
+(https://analyzer.saa-alliance.com)
 The preview environment provides:
 sample analytical dashboards
 illustrative portfolio analytics
